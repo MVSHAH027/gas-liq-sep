@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical Gas-Liquid Separator Design</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.875rem;
+            font-weight: 400;
+        }
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .section-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            margin-bottom: 1.5rem;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Vertical Gas-Liquid Separator Design</h1>
+            <p class="text-md text-gray-600 mt-2">An interactive tool for preliminary sizing and design.</p>
+        </header>
+
+        <main>
+            <!-- Input Parameters Section -->
+            <div class="section-card">
+                <h2 class="text-2xl font-semibold mb-4 border-b pb-2">1. Process & Fluid Properties</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="gasFlowRate" class="block text-sm font-medium text-gray-700">Gas Flow Rate</label>
+                        <div class="mt-1 flex rounded-md shadow-sm">
+                            <input type="number" id="gasFlowRate" value="10" class="flex-1 block w-full rounded-none rounded-l-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                            <select id="gasFlowUnit" class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                <option value="MMSCFD">MMSCFD</option>
+                                <option value="m3/hr">m³/hr</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="liquidFlowRate" class="block text-sm font-medium text-gray-700">Liquid Flow Rate</label>
+                        <div class="mt-1 flex rounded-md shadow-sm">
+                            <input type="number" id="liquidFlowRate" value="500" class="flex-1 block w-full rounded-none rounded-l-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                             <select id="liquidFlowUnit" class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                <option value="bbl/day">bbl/day</option>
+                                <option value="m3/hr">m³/hr</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="pressure" class="block text-sm font-medium text-gray-700">Operating Pressure</label>
+                        <div class="mt-1 flex rounded-md shadow-sm">
+                            <input type="number" id="pressure" value="1000" class="flex-1 block w-full rounded-none rounded-l-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                            <select id="pressureUnit" class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                <option value="psig">psig</option>
+                                <option value="barg">barg</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="temperature" class="block text-sm font-medium text-gray-700">Operating Temperature</label>
+                        <div class="mt-1 flex rounded-md shadow-sm">
+                            <input type="number" id="temperature" value="100" class="flex-1 block w-full rounded-none rounded-l-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                            <select id="temperatureUnit" class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                <option value="F">°F</option>
+                                <option value="C">°C</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="gasMW" class="block text-sm font-medium text-gray-700">Gas Molecular Weight</label>
+                        <input type="number" id="gasMW" value="20" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                    </div>
+                    <div>
+                        <label for="gasZ" class="block text-sm font-medium text-gray-700">Gas Z-Factor</label>
+                        <input type="number" id="gasZ" value="0.9" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                    </div>
+                     <div>
+                        <label for="liquidDensity" class="block text-sm font-medium text-gray-700">Liquid Density</label>
+                        <div class="mt-1 flex rounded-md shadow-sm">
+                            <input type="number" id="liquidDensity" value="50" class="flex-1 block w-full rounded-none rounded-l-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                            <select id="liquidDensityUnit" class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                <option value="lb/ft3">lb/ft³</option>
+                                <option value="kg/m3">kg/m³</option>
+                            </select>
+                        </div>
+                    </div>
+                     <div>
+                        <label for="residenceTime" class="block text-sm font-medium text-gray-700">Liquid Residence Time (min)</label>
+                        <input type="number" id="residenceTime" value="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration Section -->
+            <div class="section-card">
+                <h2 class="text-2xl font-semibold mb-4 border-b pb-2">2. Separator Configuration</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="inletType" class="block text-sm font-medium text-gray-700">
+                            Feed Inlet Device
+                            <span class="tooltip">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span class="tooltiptext">Reduces momentum and helps with initial bulk separation. Cyclone inlets are highly efficient but have a higher pressure drop.</span>
+                            </span>
+                        </label>
+                        <select id="inletType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                            <option value="none">Simple Inlet Nozzle</option>
+                            <option value="baffle">Inlet Baffle</option>
+                            <option value="diverter">Inlet Diverter Plate</option>
+                            <option value="cyclone" selected>Cyclone Inlet</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="mistEliminator" class="block text-sm font-medium text-gray-700">
+                            Gas Outlet Demister
+                             <span class="tooltip">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span class="tooltiptext">Removes fine liquid droplets from the exiting gas. Wire mesh is common, while vane packs handle higher velocities and fouling service better.</span>
+                            </span>
+                        </label>
+                        <select id="mistEliminator" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                            <option value="none">None</option>
+                            <option value="mesh" selected>Wire Mesh Pad</option>
+                            <option value="vane">Vane Pack</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center mt-8">
+                <button id="calculateBtn" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-10 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105">
+                    Calculate Design
+                </button>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="mt-8 hidden">
+                <div class="section-card">
+                    <h2 class="text-2xl font-semibold mb-4 border-b pb-2">3. Intermediate Calculations</h2>
+                    <div id="calculationSteps" class="text-sm space-y-2 text-gray-600"></div>
+                </div>
+                <div class="section-card bg-indigo-50">
+                    <h2 class="text-2xl font-semibold mb-4 border-b pb-2 text-gray-900">4. Final Design Summary</h2>
+                    <div id="finalResults" class="space-y-2"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // DOM Elements
+        const calculateBtn = document.getElementById('calculateBtn');
+        const resultsSection = document.getElementById('resultsSection');
+        const calculationStepsDiv = document.getElementById('calculationSteps');
+        const finalResultsDiv = document.getElementById('finalResults');
+
+        // --- Event Listener ---
+        calculateBtn.addEventListener('click', () => {
+            try {
+                const inputs = getInputs();
+                const convertedInputs = convertToImperial(inputs);
+                const results = performCalculations(convertedInputs);
+                displayResults(results, inputs.gasFlowUnit === 'm3/hr'); // Pass metric flag
+                resultsSection.classList.remove('hidden');
+                finalResultsDiv.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error("Calculation Error:", error);
+                alert("Error during calculation. Please check your input values. \n" + error.message);
+            }
+        });
+
+        // --- Input Gathering ---
+        function getInputs() {
+            const getVal = (id) => {
+                const el = document.getElementById(id);
+                if (el.value === '' || isNaN(parseFloat(el.value))) {
+                    throw new Error(`Invalid or empty value for ${el.previousElementSibling?.innerText || id}`);
+                }
+                return parseFloat(el.value);
+            };
+            
+            return {
+                gasFlowRate: getVal('gasFlowRate'),
+                gasFlowUnit: document.getElementById('gasFlowUnit').value,
+                liquidFlowRate: getVal('liquidFlowRate'),
+                liquidFlowUnit: document.getElementById('liquidFlowUnit').value,
+                pressure: getVal('pressure'),
+                pressureUnit: document.getElementById('pressureUnit').value,
+                temperature: getVal('temperature'),
+                temperatureUnit: document.getElementById('temperatureUnit').value,
+                gasMW: getVal('gasMW'),
+                gasZ: getVal('gasZ'),
+                liquidDensity: getVal('liquidDensity'),
+                liquidDensityUnit: document.getElementById('liquidDensityUnit').value,
+                residenceTime: getVal('residenceTime'),
+                mistEliminator: document.getElementById('mistEliminator').value,
+                inletType: document.getElementById('inletType').value,
+            };
+        }
+
+        // --- Unit Conversions ---
+        function convertToImperial(inputs) {
+            let { gasFlowRate, liquidFlowRate, pressure, temperature, liquidDensity } = inputs;
+
+            // Gas Flow Rate to ft³/s
+            if (inputs.gasFlowUnit === 'MMSCFD') {
+                gasFlowRate = gasFlowRate * 1e6 / (24 * 3600); // SCFS
+            } else { // m³/hr to ft³/s
+                gasFlowRate = gasFlowRate * Math.pow(3.28084, 3) / 3600; // ACFS
+            }
+
+            // Liquid Flow Rate to ft³/s
+            if (inputs.liquidFlowUnit === 'bbl/day') {
+                liquidFlowRate = liquidFlowRate * 5.61458 / (24 * 3600);
+            } else { // m³/hr to ft³/s
+                liquidFlowRate = liquidFlowRate * Math.pow(3.28084, 3) / 3600;
+            }
+
+            // Pressure to psia
+            if (inputs.pressureUnit === 'psig') {
+                pressure += 14.7;
+            } else { // barg to psia
+                pressure = (pressure * 14.5038) + 14.7;
+            }
+
+            // Temperature to Rankine
+            if (inputs.temperatureUnit === 'F') {
+                temperature += 460;
+            } else { // C to Rankine
+                temperature = (temperature * 9/5 + 32) + 460;
+            }
+
+            // Liquid Density to lb/ft³
+            if (inputs.liquidDensityUnit === 'kg/m3') {
+                liquidDensity = liquidDensity * 0.062428;
+            }
+
+            return { ...inputs, gasFlowRate, liquidFlowRate, pressure, temperature, liquidDensity };
+        }
+
+        // --- Core Calculation Logic ---
+        function performCalculations(inputs) {
+            const R = 10.7316; // Universal gas constant in (psi·ft³)/(lb-mol·°R)
+            const g = 32.2; // ft/s²
+
+            // 1. Gas Properties
+            const gasDensity = (inputs.pressure * inputs.gasMW) / (inputs.gasZ * R * inputs.temperature);
+            
+            // Convert SCGF to ACGF for MMSCFD case
+            let actualGasFlowRate = inputs.gasFlowRate;
+            if(inputs.gasFlowUnit === 'MMSCFD'){
+                 // Using P1V1/T1Z1 = P2V2/T2Z2
+                 const P_std = 14.7; // psia
+                 const T_std = 520; // R (60F)
+                 const Z_std = 1.0;
+                 actualGasFlowRate = inputs.gasFlowRate * (P_std / inputs.pressure) * (inputs.temperature / T_std) * (inputs.gasZ / Z_std);
+            }
+            
+            // 2. Determine K-Factor
+            let kFactor;
+            let kFactorReason;
+            switch (inputs.mistEliminator) {
+                case 'mesh':
+                    kFactor = 0.35;
+                    kFactorReason = "Standard K-factor for wire mesh demister.";
+                    break;
+                case 'vane':
+                    kFactor = 0.5;
+                    kFactorReason = "Typical K-factor for vane pack demister.";
+                    break;
+                default:
+                    kFactor = 0.1;
+                    kFactorReason = "Conservative K-factor for gravity settling (no demister).";
+                    break;
+            }
+            if (inputs.pressure > 1500) kFactor *= 0.9; // Adjust for high pressure
+            if (inputs.inletType === 'cyclone') kFactor *= 1.1; // More efficient inlet
+
+
+            // 3. Gas Velocity & Diameter Calculation (Souders-Brown)
+            const terminalVelocity = kFactor * Math.sqrt((inputs.liquidDensity - gasDensity) / gasDensity);
+            const designGasVelocity = 0.8 * terminalVelocity; // 80% of terminal velocity
+            const areaGas = actualGasFlowRate / designGasVelocity;
+            const diameter = Math.sqrt((4 * areaGas) / Math.PI);
+            const roundedDiameter = Math.ceil(diameter * 2) / 2; // Round up to nearest 6 inches
+
+            // 4. Liquid Holdup Height
+            const liquidVolume = inputs.liquidFlowRate * inputs.residenceTime * 60; // in ft³
+            const areaVessel = (Math.PI / 4) * Math.pow(roundedDiameter, 2);
+            const h_holdup = liquidVolume / areaVessel;
+
+            // 5. Total Vessel Height Calculation (Seam-to-Seam)
+            const h_demister = 1.5; // ft, for pad + space
+            const h_vapor_disengage = Math.max(2.0, 0.25 * roundedDiameter);
+            const h_inlet_disengage = Math.max(1.0, 0.5 * roundedDiameter);
+            const h_liquid_surge = 1.0; // ft, HLL to vessel tangent
+            const h_bottom = 1.0; // LLL to bottom tangent
+
+            const totalHeight = h_demister + h_vapor_disengage + h_inlet_disengage + h_holdup + h_liquid_surge + h_bottom;
+            const roundedHeight = Math.ceil(totalHeight);
+
+            // 6. Nozzle Sizing (based on velocity criteria)
+            const nozzleVelocity = { gas: 100, liquid: 5, inlet: 60 }; // ft/s
+            const nozzleArea = (flow, vel) => flow / vel;
+            const nozzleDia = (area) => Math.sqrt(4 * area / Math.PI) * 12; // inches
+
+            const totalInletFlow = actualGasFlowRate + inputs.liquidFlowRate;
+            const inletNozzleDia = nozzleDia(nozzleArea(totalInletFlow, nozzleVelocity.inlet));
+            const gasOutletNozzleDia = nozzleDia(nozzleArea(actualGasFlowRate, nozzleVelocity.gas));
+            const liquidOutletNozzleDia = nozzleDia(nozzleArea(inputs.liquidFlowRate, nozzleVelocity.liquid));
+
+            const roundNozzle = (d) => {
+                const sizes = [2, 3, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24];
+                return sizes.find(size => size >= d) || Math.ceil(d);
+            };
+
+            return {
+                imperial: {
+                    gasDensity: gasDensity,
+                    actualGasFlowRate: actualGasFlowRate,
+                    kFactor: kFactor,
+                    kFactorReason: kFactorReason,
+                    terminalVelocity: terminalVelocity,
+                    designGasVelocity: designGasVelocity,
+                    diameter: roundedDiameter,
+                    h_holdup: h_holdup,
+                    totalHeight: roundedHeight,
+                    inletNozzle: roundNozzle(inletNozzleDia),
+                    gasOutletNozzle: roundNozzle(gasOutletNozzleDia),
+                    liquidOutletNozzle: roundNozzle(liquidOutletNozzleDia),
+                }
+            };
+        }
+        
+        // --- Display Logic ---
+        function displayResults(results, isMetric) {
+            const imp = results.imperial;
+            const toMetric = (val, type) => {
+                if (!isMetric) return val;
+                switch (type) {
+                    case 'length': return val * 0.3048; // ft to m
+                    case 'density': return val * 16.0185; // lb/ft³ to kg/m³
+                    case 'velocity': return val * 0.3048; // ft/s to m/s
+                    case 'flow': return val * 101.94; // ft³/s to m³/hr
+                    case 'size': return val * 25.4; // in to mm
+                    default: return val;
+                }
+            };
+
+            const f = (num, digits = 2) => toMetric(num).toFixed(digits);
+            const len = (num) => toMetric(num, 'length').toFixed(2);
+            const den = (num) => toMetric(num, 'density').toFixed(2);
+            const vel = (num) => toMetric(num, 'velocity').toFixed(2);
+            const size = (num) => toMetric(num, 'size').toFixed(0);
+
+            const u = {
+                len: isMetric ? "m" : "ft",
+                den: isMetric ? "kg/m³" : "lb/ft³",
+                vel: isMetric ? "m/s" : "ft/s",
+                size: isMetric ? "mm" : "in",
+            };
+
+            // Intermediate Calculation Steps
+            calculationStepsDiv.innerHTML = `
+                <p><strong>1. Gas Density (ρg):</strong> ${den(imp.gasDensity)} ${u.den}</p>
+                <p><strong>2. Actual Gas Flow:</strong> ${f(imp.actualGasFlowRate,3)} ft³/s (at operating conditions)</p>
+                <p><strong>3. K-Factor:</strong> ${imp.kFactor.toFixed(3)} (${imp.kFactorReason})</p>
+                <p><strong>4. Max Gas Velocity (Vt):</strong> ${vel(imp.terminalVelocity)} ${u.vel} (based on Souders-Brown)</p>
+                <p><strong>5. Design Gas Velocity (Vd):</strong> ${vel(imp.designGasVelocity)} ${u.vel} (80% of Vt)</p>
+                <p><strong>6. Vessel Diameter (D):</strong> Calculated based on Vd, then rounded up to ${len(imp.diameter)} ${u.len}</p>
+                <p><strong>7. Liquid Holdup Height:</strong> ${len(imp.h_holdup)} ${u.len} for specified residence time.</p>
+                <p><strong>8. Total Height (S/S):</strong> Sum of sections (demister, disengagement, holdup, etc.) results in ${len(imp.totalHeight)} ${u.len}</p>
+            `;
+
+            // Final Results
+            finalResultsDiv.innerHTML = `
+                <div class="result-item">
+                    <span class="font-medium text-gray-700">Separator Diameter (ID)</span>
+                    <span class="font-bold text-2xl text-indigo-600">${len(imp.diameter)} ${u.len}</span>
+                </div>
+                <div class="result-item">
+                    <span class="font-medium text-gray-700">Separator Height (S/S)</span>
+                    <span class="font-bold text-2xl text-indigo-600">${len(imp.totalHeight)} ${u.len}</span>
+                </div>
+                <div class="result-item">
+                    <span class="font-medium text-gray-700">Feed Inlet Nozzle</span>
+                    <span class="font-semibold text-lg">${size(imp.inletNozzle)} ${u.size}</span>
+                </div>
+                <div class="result-item">
+                    <span class="font-medium text-gray-700">Gas Outlet Nozzle</span>
+                    <span class="font-semibold text-lg">${size(imp.gasOutletNozzle)} ${u.size}</span>
+                </div>
+                <div class="result-item">
+                    <span class="font-medium text-gray-700">Liquid Outlet Nozzle</span>
+                    <span class="font-semibold text-lg">${size(imp.liquidOutletNozzle)} ${u.size}</span>
+                </div>
+                 <div class="result-item">
+                    <span class="font-medium text-gray-700">Drain / PSV Nozzles</span>
+                    <span class="font-semibold text-lg">Typically 2-4 ${u.size} (Nominal)</span>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

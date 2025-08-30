@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vertical Gas–Liquid Separator Designer</title>
+  <style>
+    :root {
+      --bg: #0f172a;        /* slate-900 */
+      --panel: #111827;     /* gray-900 */
+      --muted: #334155;     /* slate-600 */
+      --text: #e5e7eb;      /* gray-200 */
+      --accent: #22d3ee;    /* cyan-400 */
+      --accent-2: #a78bfa;  /* violet-400 */
+      --ok: #34d399;        /* green-400 */
+      --warn: #f59e0b;      /* amber-500 */
+      --bad: #ef4444;       /* red-500 */
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; background: linear-gradient(120deg, #0b1220, #0d1322);
+      color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    header { padding: 16px 20px; position: sticky; top: 0; backdrop-filter: blur(6px);
+      background: rgba(15, 23, 42, 0.7); border-bottom: 1px solid #1f2937; z-index: 10; }
+    header h1 { margin: 0; font-size: 20px; letter-spacing: 0.2px; }
+    header small { color: #93c5fd; }
+
+    .container { display: grid; grid-template-columns: 1fr; gap: 14px; padding: 14px; max-width: 1200px; margin: 0 auto; }
+    @media (min-width: 960px) {
+      .container { grid-template-columns: 380px 1fr; }
+    }
+
+    .card { background: rgba(17,24,39,0.9); border: 1px solid #1f2937; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+    .card h2 { margin: 0; padding: 14px 16px; font-size: 16px; color: #93c5fd; border-bottom: 1px dashed #1f2937; }
+    .card .content { padding: 14px 16px; }
+
+    .row { display: grid; grid-template-columns: 1fr 100px; gap: 10px; align-items: center; margin-bottom: 10px; }
+    .row label { font-size: 12px; color: #c7d2fe; }
+    .row input, .row select, .row textarea {
+      width: 100%; padding: 10px 10px; background: #0b1020; color: var(--text);
+      border: 1px solid #1f2937; border-radius: 10px; outline: none; transition: border .2s ease;
+    }
+    .row input:focus, .row select:focus, .row textarea:focus { border-color: var(--accent); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+    details { background: #0b1020; border: 1px solid #1f2937; border-radius: 12px; padding: 8px 10px; }
+    details > summary { cursor: pointer; color: #93c5fd; }
+    .help { color: #a5b4fc; font-size: 12px; line-height: 1.4; }
+
+    .btnbar { display: flex; gap: 10px; flex-wrap: wrap; }
+    button {
+      appearance: none; border: 1px solid #1f2937; background: linear-gradient(180deg, #1f2937, #0b1020);
+      color: var(--text); padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 600;
+      transition: transform .05s ease, background .2s ease, border .2s ease;
+    }
+    button:hover { background: linear-gradient(180deg, #273247, #0c1222); border-color: #334155; }
+    button:active { transform: translateY(1px); }
+    .accent { border-color: #164e63; background: linear-gradient(180deg, #164e63, #0b1020); }
+
+    .pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border:1px solid #334155; font-size: 11px; color:#d1fae5; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 8px 10px; border-bottom: 1px dashed #1f2937; text-align: left; }
+    th { color: #93c5fd; font-weight: 600; background: #0b1020; position: sticky; top: 0; }
+
+    .result { font-size: 14px; }
+    .result h3 { color: #5eead4; margin: 8px 0; }
+    .badge { padding: 4px 8px; border-radius: 10px; font-size: 11px; border: 1px solid #334155; }
+
+    .footer { color: #9ca3af; font-size: 12px; text-align: center; padding: 16px; }
+
+    .warn { color: var(--warn); }
+    .bad { color: var(--bad); }
+    .ok  { color: var(--ok); }
+
+    .sticky-actions { position: sticky; bottom: 0; background: rgba(17,24,39,0.9); padding: 10px 16px; border-top:1px solid #1f2937; border-bottom-left-radius:16px; border-bottom-right-radius:16px; }
+
+    .chipgroup { display:flex; gap:8px; flex-wrap:wrap; }
+    .chip { padding:6px 10px; border-radius:9999px; border:1px solid #334155; cursor:pointer; }
+    .chip.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(34,211,238,0.2) inset; }
+
+    .mini { font-size: 11px; color:#cbd5e1 }
+
+    .two-col { display:grid; grid-template-columns:1fr; gap:12px; }
+    @media (min-width: 720px){ .two-col{ grid-template-columns: 1fr 1fr; } }
+
+    .calc-grid { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:10px; }
+    @media (min-width: 920px){ .calc-grid{ grid-template-columns: repeat(4,minmax(0,1fr)); } }
+
+    .code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px; background:#0b1020; border:1px solid #1f2937; border-radius:10px; padding:8px; color:#a5b4fc; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Vertical Gas–Liquid Separator Designer <small>• HTML + JS (responsive)</small></h1>
+  </header>
+  <div class="container">
+
+    <!-- Inputs Panel -->
+    <section class="card" id="inputs-card">
+      <h2>1) Design Inputs</h2>
+      <div class="content">
+        <div class="row">
+          <label>Units <span class="mini">(display only)</span></label>
+          <select id="units">
+            <option value="si" selected>SI — m³/h, kg/m³, m, s</option>
+            <option value="custom">Custom (enter consistent units)</option>
+          </select>
+        </div>
+
+        <div class="grid-2">
+          <div class="row"><label>Gas flow, Q<sub>g</sub> (m³/h @ separator)</label><input id="Qg" type="number" min="0" step="any" value="50000"/></div>
+          <div class="row"><label>Liquid flow, Q<sub>l</sub> (m³/h @ separator)</label><input id="Ql" type="number" min="0" step="any" value="100"/></div>
+        </div>
+        <div class="grid-2">
+          <div class="row"><label>Gas density, ρ<sub>g</sub> (kg/m³)</label><input id="rhoG" type="number" min="0.1" step="any" value="15"/></div>
+          <div class="row"><label>Liquid density, ρ<sub>l</sub> (kg/m³)</label><input id="rhoL" type="number" min="1" step="any" value="700"/></div>
+        </div>
+        <div class="grid-2">
+          <div class="row"><label>Liquid viscosity, μ<sub>l</sub> (cP) <span class="mini">(optional)</span></label><input id="muL" type="number" min="0" step="any" value="2"/></div>
+          <div class="row"><label>Surface tension, σ (mN/m) <span class="mini">(optional)</span></label><input id="sigma" type="number" min="0" step="any" value="25"/></div>
+        </div>
+        <div class="row"><label>Design liquid residence time, τ (s)</label><input id="tau" type="number" min="1" step="any" value="120"/></div>
+
+        <div class="two-col">
+          <div>
+            <label class="mini">Gas separation internals</label>
+            <div class="chipgroup" id="gas-internals">
+              <div class="chip active" data-k="0.107" data-name="Wire mesh pad">Wire mesh pad</div>
+              <div class="chip" data-k="0.137" data-name="Vane pack">Vane pack</div>
+              <div class="chip" data-k="0.183" data-name="Cyclonic demister">Cyclonic demister</div>
+            </div>
+            <details style="margin-top:8px"><summary>What do these mean?</summary>
+              <div class="help">K-values are typical Souders–Brown design constants (m/s) at standard efficiencies. Actual selection depends on droplet size, fouling tendency, and turndown.</div>
+            </details>
+          </div>
+          <div>
+            <label class="mini">Liquid handling internals</label>
+            <div class="chipgroup" id="liq-internals">
+              <div class="chip active" data-name="Calming baffle">Calming baffle</div>
+              <div class="chip" data-name="Perforated plate">Perforated plate</div>
+              <div class="chip" data-name="Coalescer pack">Coalescer pack</div>
+            </div>
+            <details style="margin-top:8px"><summary>Notes</summary>
+              <div class="help">Liquid internals influence foaming control and coalescence. They mainly affect residence-time quality rather than K-value; this tool assumes τ already accounts for your separation target.</div>
+            </details>
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label class="mini">Feed inlet type</label>
+          <div class="chipgroup" id="inlet-type">
+            <div class="chip active" data-name="Half-open pipe" data-ifactor="0.85" data-hin="0.30">Half-open pipe</div>
+            <div class="chip" data-name="Vane diffuser" data-ifactor="1.00" data-hin="0.40">Vane diffuser</div>
+            <div class="chip" data-name="Cyclonic inlet" data-ifactor="1.10" data-hin="0.50">Cyclonic inlet</div>
+          </div>
+          <div class="help" style="margin-top:6px">Inlet device quality affects vapor capacity via an inlet factor (0.85–1.10) and required height (0.3–0.5 m typical).</div>
+        </div>
+
+        <details style="margin-top:10px"><summary>Advanced settings</summary>
+          <div class="grid-3" style="margin-top:10px">
+            <div class="row"><label>Safety/derate factor on K</label><input id="kFactor" type="number" min="0.5" max="1.2" step="0.01" value="0.95"/></div>
+            <div class="row"><label>Min vapor space height, h<sub>v,min</sub> (m)</label><input id="hvmin" type="number" min="0.2" step="0.01" value="0.50"/></div>
+            <div class="row"><label>Demister clearance (below/above, m)</label><input id="clearance" type="number" min="0.2" step="0.01" value="0.30"/></div>
+          </div>
+          <div class="grid-3">
+            <div class="row"><label>Demister thickness (m)</label><input id="demisterThk" type="number" min="0.05" step="0.01" value="0.10"/></div>
+            <div class="row"><label>Bottom liquid allowance (m)</label><input id="bottomAllow" type="number" min="0.1" step="0.01" value="0.20"/></div>
+            <div class="row"><label>Head depth each (≈0.25·D) override (m)</label><input id="headDepthOverride" type="number" min="0" step="0.01" value="0"/></div>
+          </div>
+          <div class="grid-3">
+            <div class="row"><label>Inlet nozzle velocity (m/s)</label><input id="vin" type="number" min="1" step="0.1" value="6"/></div>
+            <div class="row"><label>Gas outlet velocity (m/s)</label><input id="vgout" type="number" min="5" step="0.1" value="20"/></div>
+            <div class="row"><label>Liquid outlet velocity (m/s)</label><input id="vlout" type="number" min="0.2" step="0.1" value="1.5"/></div>
+          </div>
+        </details>
+
+      </div>
+      <div class="sticky-actions btnbar">
+        <button class="accent" id="btnCalc">Calculate</button>
+        <button id="btnSample">Load sample</button>
+        <button id="btnReset">Reset</button>
+        <span class="pill" id="status">Ready</span>
+      </div>
+    </section>
+
+    <!-- Results Panel -->
+    <section class="card" id="results-card">
+      <h2>2) Calculations & Results</h2>
+      <div class="content result">
+        <div id="quick-summary" style="margin-bottom:12px"></div>
+
+        <h3>Key Sizing</h3>
+        <table id="tbl-sizing"></table>
+
+        <h3 style="margin-top:16px">Nozzle Sizing</h3>
+        <table id="tbl-nozzles"></table>
+
+        <h3 style="margin-top:16px">Assumptions & Selected Internals</h3>
+        <div id="assumptions" class="code"></div>
+
+        <h3 style="margin-top:16px">Computation Trace</h3>
+        <table id="tbl-trace"></table>
+
+        <div style="margin-top:16px">
+          <button id="btnPrint">Print / Save PDF</button>
+          <button id="btnExportJSON">Export JSON</button>
+          <a id="downloadLink" style="display:none" download>download</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="footer">Guidance only. Use engineering judgment and applicable codes/standards.</div>
+
+  <script>
+    // Utility helpers
+    const $ = (id) => document.getElementById(id);
+    const fmt = (v, digits=3) => (isFinite(v) ? Number(v).toFixed(digits) : "-");
+
+    function chipGroupInit(id, onChange){
+      const wrap = document.getElementById(id);
+      const chips = [...wrap.querySelectorAll('.chip')];
+      chips.forEach(ch => ch.addEventListener('click', () => {
+        chips.forEach(c => c.classList.remove('active'));
+        ch.classList.add('active');
+        onChange && onChange(ch.dataset);
+      }));
+      return () => wrap.querySelector('.chip.active')?.dataset;
+    }
+
+    // Initialize chip groups
+    const getGasInternals = chipGroupInit('gas-internals');
+    const getLiqInternals = chipGroupInit('liq-internals');
+    const getInletType   = chipGroupInit('inlet-type');
+
+    function readInputs(){
+      const Qg = parseFloat($("Qg").value) || 0; // m3/h
+      const Ql = parseFloat($("Ql").value) || 0; // m3/h
+      const rhoG = parseFloat($("rhoG").value) || 0;
+      const rhoL = parseFloat($("rhoL").value) || 0;
+      const muL = parseFloat($("muL").value) || 0;
+      const sigma = parseFloat($("sigma").value) || 0;
+      const tau = parseFloat($("tau").value) || 0; // s
+      const kFactor = parseFloat($("kFactor").value) || 1;
+      const hvmin = parseFloat($("hvmin").value) || 0.5;
+      const clearance = parseFloat($("clearance").value) || 0.3;
+      const demisterThk = parseFloat($("demisterThk").value) || 0.1;
+      const bottomAllow = parseFloat($("bottomAllow").value) || 0.2;
+      const headDepthOverride = parseFloat($("headDepthOverride").value) || 0;
+      const vin = parseFloat($("vin").value) || 6;
+      const vgout = parseFloat($("vgout").value) || 20;
+      const vlout = parseFloat($("vlout").value) || 1.5;
+
+      const gasInt = getGasInternals();
+      const liqInt = getLiqInternals();
+      const inlet = getInletType();
+
+      return { Qg, Ql, rhoG, rhoL, muL, sigma, tau, kFactor, hvmin, clearance, demisterThk, bottomAllow, headDepthOverride, vin, vgout, vlout, gasInt, liqInt, inlet };
+    }
+
+    function designCalc(inp){
+      const trace = [];
+      function step(name, value, unit, note){ trace.push({name, value, unit, note}); }
+
+      const Qg_s = inp.Qg/3600; // m3/s
+      const Ql_s = inp.Ql/3600; // m3/s
+      step('Qg_s', Qg_s, 'm³/s', 'Gas volumetric flow at separator');
+      step('Ql_s', Ql_s, 'm³/s', 'Liquid volumetric flow at separator');
+
+      // Souders–Brown capacity
+      const Kbase = parseFloat(inp.gasInt.k || 0.107); // m/s
+      const inletFactor = parseFloat(inp.inlet.ifactor || 1.0);
+      const K = Kbase * inletFactor * inp.kFactor;
+      step('Kbase', Kbase, 'm/s', inp.gasInt.name);
+      step('Inlet factor', inletFactor, '-', inp.inlet.name);
+      step('K (effective)', K, 'm/s', 'Applied derate/safety');
+
+      const term = Math.max(inp.rhoL - inp.rhoG, 0.0001) / Math.max(inp.rhoG, 0.0001);
+      const vg_max = K * Math.sqrt(term);
+      step('v_g,max', vg_max, 'm/s', 'Souders–Brown capacity');
+
+      const Ag = (Qg_s / Math.max(vg_max, 1e-6));
+      step('Gas area, A', Ag, 'm²', 'Required cross-section from gas');
+
+      const D = Math.sqrt(4*Ag/Math.PI);
+      step('Diameter, D', D, 'm', 'From A = πD²/4');
+
+      // Liquid holdup height from residence time
+      const Vliq_req = inp.tau * Ql_s; // m3
+      step('V_liq (τ·Q_l)', Vliq_req, 'm³', 'Required liquid holdup volume');
+
+      const A_cyl = Math.PI * D*D / 4;
+      const h_liq = Vliq_req / Math.max(A_cyl, 1e-9);
+      step('Liquid height, h_l', h_liq, 'm', 'V_liq / Area');
+
+      // Vapor disengagement space
+      const hv = Math.max(inp.hvmin, 0.5*D); // simple rule: >=0.5D
+      step('Vapor space height, h_v', hv, 'm', '≥ max(hv,min, 0.5·D)');
+
+      // Demister clearances and inlet height
+      const h_in = parseFloat(inp.inlet.hin || 0.4);
+      const h_dm = inp.demisterThk;
+      const h_cl = inp.clearance;
+      step('Inlet device height', h_in, 'm');
+      step('Demister thickness', h_dm, 'm');
+      step('Clearance below/above demister', h_cl, 'm each');
+
+      const bottomAllow = inp.bottomAllow; // liquid boot/quiet zone
+      step('Bottom liquid allowance', bottomAllow, 'm');
+
+      // Straight-side height (shell length not incl. heads)
+      const Hs = h_in + hv + h_dm + (2*h_cl) + h_liq + bottomAllow;
+      step('Straight-side height, Hs', Hs, 'm', 'Sum of axial segments');
+
+      // Overall tangent-to-tangent: add heads depth (2:1 elliptical ≈ 0.25·D each) unless overridden
+      const headDepth = inp.headDepthOverride > 0 ? inp.headDepthOverride : 0.25*D;
+      const Htot = Hs + 2*headDepth;
+      step('Head depth (each)', headDepth, 'm', '2:1 elliptical approx');
+      step('Overall height, H_total', Htot, 'm', 'Tangent-to-tangent');
+
+      // Nozzle sizing by velocity criteria
+      const Q_in_total = Qg_s + Ql_s; // m3/s
+      function diaFromQ(Q, v){ return Math.sqrt(4*Q/(Math.PI * Math.max(v,1e-9))); }
+      const Dinlet = diaFromQ(Q_in_total, inp.vin);
+      const Dgout  = diaFromQ(Qg_s, inp.vgout);
+      const Dlout  = diaFromQ(Ql_s, inp.vlout);
+
+      const nozz = {
+        inlet: { name: 'Feed inlet', D: Dinlet, v: inp.vin, Q: Q_in_total },
+        gas:   { name: 'Gas outlet', D: Dgout,  v: inp.vgout, Q: Qg_s },
+        liq:   { name: 'Liquid outlet', D: Dlout, v: inp.vlout, Q: Ql_s }
+      };
+
+      // Sanity checks
+      const warn = [];
+      if (h_liq < 0.2) warn.push('Liquid holdup height is quite small (<0.2 m). Consider increasing τ or checking Q_l.');
+      if (vg_max < 0.2) warn.push('Computed vapor capacity velocity v_g,max is low; confirm densities and K selection.');
+      if (D < 0.5) warn.push('Calculated diameter < 0.5 m. Check if packaged/cylindrical internals will fit.');
+
+      return { D, Hs, Htot, h_liq, hv, vg_max, Ag, A_cyl, Vliq_req, headDepth, inps: inp, nozz, trace, warnings: warn };
+    }
+
+    function renderResults(r){
+      const sum = $("quick-summary");
+      sum.innerHTML = `
+        <div class="grid-3">
+          <div><span class="badge">Shell ID</span><div style="font-size:22px">${fmt(r.D,3)} m</div></div>
+          <div><span class="badge">Straight-side height</span><div style="font-size:22px">${fmt(r.Hs,3)} m</div></div>
+          <div><span class="badge">Overall height</span><div style="font-size:22px">${fmt(r.Htot,3)} m</div></div>
+        </div>
+        ${r.warnings.length? `<div class="warn" style="margin-top:8px">⚠ ${r.warnings.join(' ')}</div>`: ''}
+      `;
+
+      const tblS = $("tbl-sizing");
+      tblS.innerHTML = `
+        <tr><th>Parameter</th><th>Value</th><th>Unit</th><th>Notes</th></tr>
+        <tr><td>Gas capacity velocity, v_g,max</td><td>${fmt(r.vg_max)}</td><td>m/s</td><td>Souders–Brown</td></tr>
+        <tr><td>Required gas area, A</td><td>${fmt(r.Ag)}</td><td>m²</td><td>Qg / v_g,max</td></tr>
+        <tr><td>Shell inside diameter, D</td><td>${fmt(r.D,3)}</td><td>m</td><td>From area</td></tr>
+        <tr><td>Liquid holdup height, h_l</td><td>${fmt(r.h_liq,3)}</td><td>m</td><td>τ·Q_l / (πD²/4)</td></tr>
+        <tr><td>Vapor space height, h_v</td><td>${fmt(r.hv,3)}</td><td>m</td><td>≥ max(hv,min, 0.5·D)</td></tr>
+        <tr><td>Straight-side height, H_s</td><td>${fmt(r.Hs,3)}</td><td>m</td><td>Inlet + h_v + demister + clearances + h_l + bottom allowance</td></tr>
+        <tr><td>Overall height, H_total</td><td>${fmt(r.Htot,3)}</td><td>m</td><td>H_s + 2·head depth</td></tr>
+      `;
+
+      const tblN = $("tbl-nozzles");
+      tblN.innerHTML = `
+        <tr><th>Nozzle</th><th>Flow (m³/s)</th><th>Design v (m/s)</th><th>Diameter (m)</th></tr>
+        ${['inlet','gas','liq'].map(k => {
+          const n = r.nozz[k];
+          return `<tr><td>${n.name}</td><td>${fmt(n.Q)}</td><td>${fmt(n.v)}</td><td>${fmt(n.D,3)}</td></tr>`;
+        }).join('')}
+      `;
+
+      const as = $("assumptions");
+      as.textContent = `Gas internals: ${r.inps.gasInt.name} (Kbase=${fmt(parseFloat(r.inps.gasInt.k))} m/s).\n`+
+                       `Feed inlet: ${r.inps.inlet.name} (factor=${fmt(parseFloat(r.inps.inlet.ifactor))}, height≈${fmt(parseFloat(r.inps.inlet.hin))} m).\n`+
+                       `Liquid internals: ${r.inps.liqInt.name}.\n`+
+                       `Derate factor on K: ${fmt(r.inps.kFactor)}. Demister thickness: ${fmt(r.inps.demisterThk)} m; clearances: ${fmt(r.inps.clearance)} m below/above.\n`+
+                       `Bottom liquid allowance: ${fmt(r.inps.bottomAllow)} m. Head depth each: ${r.inps.headDepthOverride>0? fmt(r.inps.headDepthOverride):`≈0.25·D≈${fmt(r.headDepth)}`} m.\n`+
+                       `Nozzle velocities (in/gas/liquid): ${fmt(r.inps.vin)}/${fmt(r.inps.vgout)}/${fmt(r.inps.vlout)} m/s.`;
+
+      const tblT = $("tbl-trace");
+      tblT.innerHTML = `<tr><th>Quantity</th><th>Value</th><th>Unit</th><th>Note</th></tr>` +
+        r.trace.map(t => `<tr><td>${t.name}</td><td>${fmt(t.value)}</td><td>${t.unit||''}</td><td>${t.note||''}</td></tr>`).join('');
+    }
+
+    function exportJSON(r){
+      const payload = {
+        timestamp: new Date().toISOString(),
+        results: {
+          diameter_m: r.D,
+          straight_side_height_m: r.Hs,
+          overall_height_m: r.Htot,
+          nozzle_diameters_m: {
+            inlet: r.nozz.inlet.D,
+            gas: r.nozz.gas.D,
+            liquid: r.nozz.liq.D,
+          },
+          computed: r
+        }
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = $("downloadLink");
+      a.href = url; a.download = 'separator_design.json'; a.style.display='inline-block'; a.textContent = 'Download JSON';
+    }
+
+    // Buttons
+    $("btnCalc").addEventListener('click', () => {
+      $("status").textContent = 'Calculating…';
+      const r = designCalc(readInputs());
+      renderResults(r);
+      $("status").textContent = 'Done';
+    });
+
+    $("btnSample").addEventListener('click', () => {
+      $("Qg").value = 80000; $("Ql").value = 250;
+      $("rhoG").value = 12; $("rhoL").value = 650;
+      $("muL").value = 1.5; $("sigma").value = 20;
+      $("tau").value = 180; $("kFactor").value = 0.92;
+      $("vin").value = 6; $("vgout").value = 22; $("vlout").value = 1.2;
+      $("status").textContent = 'Sample loaded';
+    });
+
+    $("btnReset").addEventListener('click', () => {
+      document.querySelectorAll('input').forEach(inp => { if(inp.type==='number') inp.value = inp.defaultValue || ''; });
+      document.querySelectorAll('.chipgroup').forEach(g => {
+        const chips = [...g.querySelectorAll('.chip')]; chips.forEach(c => c.classList.remove('active')); if(chips[0]) chips[0].classList.add('active');
+      });
+      $("status").textContent = 'Reset to defaults';
+      $("tbl-sizing").innerHTML = ''; $("tbl-nozzles").innerHTML = ''; $("tbl-trace").innerHTML=''; $("assumptions").textContent='';
+      $("quick-summary").innerHTML='';
+    });
+
+    $("btnPrint").addEventListener('click', () => window.print());
+    $("btnExportJSON").addEventListener('click', () => exportJSON(currentResult));
+
+    // Keep last result for export
+    let currentResult = null;
+    const originalRender = renderResults;
+    renderResults = function(r){ currentResult = r; originalRender(r); };
+
+    // Kick off with an initial calc for defaults
+    (function(){ const r = designCalc(readInputs()); renderResults(r); })();
+  </script>
+</body>
+</html>
